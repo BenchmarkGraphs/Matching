@@ -1,4 +1,3 @@
-#include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -6,7 +5,7 @@
 #include <string.h>
 #include <time.h>
 
-// Compile: gcc asn_gen.c -o [binary name] -O3 -lm
+// Compile: gcc asn_gen.c -o [binary name] -O3
 
 /*
   Generates instances for the assignment problem according to Dimacs Challenge
@@ -32,7 +31,7 @@
     degree_file     - File to read partition degree distributions from
     max_weight      - Maximum weight of weight distribution
     weight_file     - File to read a weight distribution from
-    swaps           - Number of edge weight swaps to perform
+    swaps           - The maximum number of edge weight swaps to perform
     seed            - Seed for rng
     output          - File for output (in dimacs format)
 
@@ -70,7 +69,7 @@ typedef int32_t i32;
 typedef uint32_t u32;
 typedef int64_t i64;
 typedef uint64_t u64;
-typedef double_t d64;
+typedef double d64;
 
 // Global input parameters
 i32 g_nodes;      // The number of nodes
@@ -476,7 +475,7 @@ void parse_input(
     i32 i;
 
     while (scanf("%s", cmd) != EOF) {
-        fgets(buf, sizeof(buf), stdin);
+        char* ignore = fgets(buf, sizeof(buf), stdin);
         index = lookup(cmd);
 
         switch (index) {
@@ -759,7 +758,6 @@ i32 phase2_alg(Graph **graph, Matching **matching, i32 size_u, i32 K) {
         i32 swap_m = w2 + w4;
         i32 swap_x = w1 + w3;
 
-        // printf("made it here!");
         if (swap_m > swap_x && w4 < w1) {
             successful_swaps++;
             update_edge_weight(*graph, u, mu, w4);
@@ -783,8 +781,8 @@ i32 phase2_alg(Graph **graph, Matching **matching, i32 size_u, i32 K) {
             );
         }
         else {
-            // Either cross is same weight/larger or matching increases with
-            // swap
+            // Either cross is same weight/larger
+            // or matching weight increases with swap
             continue;
         }
 
