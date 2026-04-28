@@ -13,8 +13,9 @@ This generator was originally developed for the purposes of benchmarking approxi
 
 Compilation requires no external dependencies outside of a C compiler and the standard C libraries. All that is needing for linking is the -lm flag for a handful of math.h functions. Example compilation is below (just replace 'gcc' with your compiler of choice).
 
-bash$ gcc bp_gen.c -O3 -lm -o bp_gen
-
+```bash
+$ gcc bp_gen.c -O3 -lm -o bp_gen
+```
 
 ## Usage
 
@@ -40,20 +41,24 @@ bash$ ./bp_gen \[n\] \[z\] \[r\] \[gamma\] \[filepath (optional)\]
   
 Examples:
 
-1. Generate a graph with 9000 total vertices, power law exponent of 2.5, 6000 vertices in X and 3000 in Y, with a maximum cardinality match that fully saturates Y:
+1. Generate a graph with 9000 total vertices, power law exponent of 2.5, 6000 vertices in X and 3000 in Y, with a maximum cardinality match that fully saturates X,Y:
 
-bash$ ./bp_gen 10000 2.0 1.0 2.5
 
+```bash
+$ ./bp_gen 9000 2.0 1.0 2.5
+```
 
 2. Generate a graph with 9000 total vertices, power law exponent of 2.5, 6000 vertices in X and 3000 in Y, with a maximum cardinality match of 1500.
 
-bash$ ./bp_gen 10000 2.0 0.5 2.5
-
+```bash
+$ ./bp_gen 9000 2.0 0.5 2.5
+```
 
 3. Generate a graph with 1000000 total vertices, power law exponent of 2.2, 750K vertices in X and 250K in Y, with a maximum cardinality match of 100000.
 
-bash$ ./bp_gen 1000000 3.0 0.4 2.2
-
+```bash
+$ ./bp_gen 1000000 3.0 0.4 2.2
+```
 
 ## Notes
 
