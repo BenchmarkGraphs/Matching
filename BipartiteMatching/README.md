@@ -68,11 +68,11 @@ This current method is based on a set of generators described in the 2025 Comple
 
 Fabius, Anthony, Ujwal Pandey, Dong Lin, Yash Kaul, and George M. Slota. Scalable Benchmark Graph Generation for the Maximum Cardinality Matching and Distance-1 Minimum Coloring Problems. In the International Conference on Complex Networks and Their Applications, pp. 318-329. Cham: Springer Nature Switzerland, 2025.
 
-@inproceedings{fabius2025scalable,
-  title={Scalable Benchmark Graph Generation for the Maximum Cardinality Matching and Distance-1 Minimum Coloring Problems},
-  author={Fabius, Anthony and Pandey, Ujwal and Lin, Dong and Kaul, Yash and Slota, George M},
-  booktitle={International Conference on Complex Networks and Their Applications},
-  pages={318--329},
-  year={2025},
-  organization={Springer}
+@inproceedings{fabius2025scalable,  
+  title={Scalable Benchmark Graph Generation for the Maximum Cardinality Matching and Distance-1 Minimum Coloring Problems},  
+  author={Fabius, Anthony and Pandey, Ujwal and Lin, Dong and Kaul, Yash and Slota, George M},  
+  booktitle={International Conference on Complex Networks and Their Applications},  
+  pages={318--329},  
+  year={2025},  
+  organization={Springer}  
 }
