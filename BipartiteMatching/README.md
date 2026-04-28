@@ -69,7 +69,9 @@ The slowest portion of the code is I/O. As noted, you can perform generation in 
 
 ## Citation
 
-This current method is based on a set of generators described in the 2025 Complex Networks and their Applications Conference (CNA). Please use the following citation if you reference or use this work:
+This current method is based on a set of generators described in the 2025 Complex Networks and their Applications Conference (CNA). The paper is available [here](https://www.cs.rpi.edu/~slotag/pub/Random-CNA25.pdf):
+
+Please use the following citation if you reference or use this work:
 
 Fabius, Anthony, Ujwal Pandey, Dong Lin, Yash Kaul, and George M. Slota. Scalable Benchmark Graph Generation for the Maximum Cardinality Matching and Distance-1 Minimum Coloring Problems. In the International Conference on Complex Networks and Their Applications, pp. 318-329. Cham: Springer Nature Switzerland, 2025.
 
