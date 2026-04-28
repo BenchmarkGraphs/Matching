@@ -23,13 +23,13 @@ Compilation requires no external dependencies outside of a C compiler and the st
 
 To compile the generator
 ```bash
-$ gcc asn_gen.c -o asn_gen.out -O3
+gcc asn_gen.c -o asn_gen.out -O3
 ```
 
 To compile the helper files
 ```bash
-$ gcc weights.c -o weights.out -O3 -lm
-$ gcc degrees.c -o degrees.out -O3 -lm
+gcc weights.c -o weights.out -O3 -lm
+gcc degrees.c -o degrees.out -O3 -lm
 ```
 
 ## Usage
