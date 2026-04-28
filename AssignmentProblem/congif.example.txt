@@ -1,0 +1,6 @@
+nodes 1000000
+degree_file degrees.txt
+weight_file weights.txt
+swaps 500000
+seed 1337
+output example_instance.dimacs

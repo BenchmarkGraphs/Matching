@@ -16,13 +16,13 @@
   Rensselaer Polytechnic Institute 4/26
 
   Sample Input Commands:
-    nodes         N   : 10000
-    sources       S   : 4000
-    max_weight    M   : 50
-    weights       C   : weights.txt
-    degree_file   F   : degrees.txt
-    swaps         S   : 500
-    seed          P   : 1337
+    nodes           10000
+    sources         4000
+    max_weight      50
+    weights         weights.txt
+    degree_file     degrees.txt
+    swaps           500
+    seed            1337
 
   All commands except for nodes are optional, The defaults can be found below
     nodes           - Specifies the number of vertices in the graph
@@ -47,12 +47,12 @@
 
 /* -------------------- Definitions and Variables -------------------- */
 
-#define assert(cond, msg)                                                      \
-    do {                                                                       \
-        if (!(cond)) {                                                         \
-            printf("Assertion failed: %s\n", msg);                             \
-            exit(1);                                                           \
-        }                                                                      \
+#define assert(cond, msg)                                                                          \
+    do {                                                                                           \
+        if (!(cond)) {                                                                             \
+            printf("Assertion failed: %s\n", msg);                                                 \
+            exit(1);                                                                               \
+        }                                                                                          \
     } while (0)
 
 // Some defaults for unset parameters
@@ -72,12 +72,12 @@ typedef uint64_t u64;
 typedef double d64;
 
 // Global input parameters
-i32 g_nodes;      // The number of nodes
-i32 g_sources;    // The number of source and sink nodes
-i32 g_degree_val; // Source partition vertex degree if degree_file not specified
-i32 g_max_weight; // Max weight of the arcs
-i32 g_max_swaps;  // Maximum number of weight swaps
-i32 g_seed;       // Seed for rng
+u32 g_nodes;             // The number of nodes
+u32 g_sources;           // The number of source and sink nodes
+i32 g_degree_val;        // Source partition vertex degree if degree_file not specified
+i32 g_max_weight;        // Max weight of the arcs
+i32 g_max_swaps;         // Maximum number of weight swaps
+i32 g_seed;              // Seed for rng
 char g_weight_file[256]; // Path to weight file. If empty randoms #s are used
 char g_degree_file[256]; // Path to degree file. If empty degree_val is used
 char g_output_file[256]; // Dimacs formatted output file path
@@ -90,7 +90,7 @@ i32 cmdtable_size;
 /* -------------------- Data Structures -------------------- */
 
 typedef struct {
-    i32 id;
+    u32 id;
     i32 weight;
 } Neighbor;
 
@@ -102,7 +102,7 @@ typedef struct {
 typedef struct {
     AdjList *nodes;
     Neighbor *edge_pool;
-    i32 num_nodes;
+    u32 num_nodes;
 } Graph;
 
 typedef struct {
@@ -131,31 +131,29 @@ i64 get_matching_weight(const Matching *matching, i32 size) {
 }
 
 // Allocate CSR format graph and returns it
-Graph *create_graph(i32 *u_deg, i32 u_size, i32 *v_deg, i32 v_size) {
+Graph *create_graph(i32 *u_deg, u32 u_size, i32 *v_deg, u32 v_size) {
     Graph *g = (Graph *) malloc(sizeof(Graph));
     g->num_nodes = u_size + v_size;
     g->nodes = malloc(g->num_nodes * sizeof(AdjList));
 
     i64 total_edges = 0;
-    for (i32 i = 0; i < u_size; i++) {
+    for (u32 i = 0; i < u_size; i++) {
         total_edges += u_deg[i];
     }
 
     g->edge_pool = malloc(2 * total_edges * sizeof(Neighbor));
-    assert(
-        g->nodes != NULL && g->edge_pool != NULL, "Failed to allocate Graph\n"
-    );
+    assert(g->nodes != NULL && g->edge_pool != NULL, "Failed to allocate Graph\n");
 
-    i64 offset = 0;
+    size_t offset = 0;
 
-    for (i32 i = 0; i < u_size; i++) {
+    for (u32 i = 0; i < u_size; i++) {
         g->nodes[i].list = g->edge_pool + offset;
         g->nodes[i].count = 0;
         offset += u_deg[i];
     }
 
-    for (i32 i = 0; i < v_size; i++) {
-        i32 v_idx = i + u_size;
+    for (u32 i = 0; i < v_size; i++) {
+        u32 v_idx = i + u_size;
         g->nodes[v_idx].list = g->edge_pool + offset;
         g->nodes[v_idx].count = 0;
         offset += v_deg[i];
@@ -165,7 +163,7 @@ Graph *create_graph(i32 *u_deg, i32 u_size, i32 *v_deg, i32 v_size) {
 }
 
 // Adds edges to graph
-void add_edge(Graph *g, i32 u, i32 v, i32 weight) {
+void add_edge(Graph *g, u32 u, u32 v, i32 weight) {
     g->nodes[u].list[g->nodes[u].count].id = v;
     g->nodes[u].list[g->nodes[u].count].weight = weight;
     g->nodes[u].count++;
@@ -176,7 +174,7 @@ void add_edge(Graph *g, i32 u, i32 v, i32 weight) {
 }
 
 // Check if edge exists
-bool has_edge(Graph *g, i32 u, u32 v) {
+bool has_edge(Graph *g, u32 u, u32 v) {
     for (i32 i = 0; i < g->nodes[u].count; i++) {
         if (g->nodes[u].list[i].id == v)
             return true;
@@ -185,7 +183,7 @@ bool has_edge(Graph *g, i32 u, u32 v) {
 }
 
 // Get edge weight. Returns 0 if no weight
-i32 get_edge_weight(Graph *g, i32 u, i32 v) {
+i32 get_edge_weight(Graph *g, u32 u, u32 v) {
     for (i32 i = 0; i < g->nodes[u].count; i++) {
         if (g->nodes[u].list[i].id == v)
             return g->nodes[u].list[i].weight;
@@ -194,7 +192,7 @@ i32 get_edge_weight(Graph *g, i32 u, i32 v) {
 }
 
 // Updates edge weight
-void update_edge_weight(Graph *g, i32 u, i32 v, i32 new_w) {
+void update_edge_weight(Graph *g, u32 u, u32 v, i32 new_w) {
     for (i32 i = 0; i < g->nodes[u].count; i++) {
         if (g->nodes[u].list[i].id == v)
             g->nodes[u].list[i].weight = new_w;
@@ -211,12 +209,9 @@ void update_edge_weight(Graph *g, i32 u, i32 v, i32 new_w) {
  * Useful for custom graphs that don't follow phase1
  */
 void sort_graph_neighbors(Graph *g) {
-    for (i32 i = 0; i < g->num_nodes; i++) {
+    for (u32 i = 0; i < g->num_nodes; i++) {
         if (g->nodes[i].count > 1) {
-            qsort(
-                g->nodes[i].list, g->nodes[i].count, sizeof(Neighbor),
-                cmp_neighbor_weight_desc
-            );
+            qsort(g->nodes[i].list, g->nodes[i].count, sizeof(Neighbor), cmp_neighbor_weight_desc);
         }
     }
 }
@@ -246,7 +241,18 @@ d64 rand_d() {
 }
 
 // Fisher-Yates
-void shuffle_array(i32 *array, size_t n) {
+void shuffle_array(u32 *array, size_t n) {
+    if (n > 1) {
+        for (size_t i = n - 1; i > 0; i--) {
+            size_t j = rand_int(RAND_MAX) % (i + 1);
+            i32 t = array[j];
+            array[j] = array[i];
+            array[i] = t;
+        }
+    }
+}
+
+void shuffle_array64(i64 *array, size_t n) {
     if (n > 1) {
         for (size_t i = n - 1; i > 0; i--) {
             size_t j = rand_int(RAND_MAX) % (i + 1);
@@ -263,21 +269,17 @@ void shuffle_array(i32 *array, size_t n) {
  * Generates degree sequences based on global degree_val
  * Sources each get degree_val & sinks split evenly.
  */
-void generate_default_degrees(
-    i32 **source_deg, i32 *source_size, i32 **sink_deg, i32 *sink_size
-) {
+void generate_default_degrees(i32 **source_deg, u32 *source_size, i32 **sink_deg, u32 *sink_size) {
     i32 sinks = g_nodes - g_sources;
     *source_size = g_sources;
     *sink_size = sinks;
 
     *source_deg = malloc(g_sources * sizeof(i32));
     *sink_deg = malloc(sinks * sizeof(i32));
-    assert(
-        *source_deg != NULL && *sink_deg != NULL, "Failed to allocate degrees\n"
-    );
+    assert(*source_deg != NULL && *sink_deg != NULL, "Failed to allocate degrees\n");
 
     i64 total_edges = 0;
-    for (i32 i = 0; i < g_sources; i++) {
+    for (u32 i = 0; i < g_sources; i++) {
         (*source_deg)[i] = g_degree_val;
         total_edges += g_degree_val;
     }
@@ -298,11 +300,11 @@ void generate_default_degrees(
 /**
  * Generates an array of random weights based on global max_weight
  */
-i32 *generate_random_weights(i32 count) {
+i32 *generate_random_weights(i64 count) {
     i32 *arr = malloc(count * sizeof(i32));
     assert(arr != NULL, "Failed to allocate weight array\n");
 
-    for (i32 i = 0; i < count; i++) {
+    for (i64 i = 0; i < count; i++) {
         arr[i] = (rand_int(RAND_MAX) % g_max_weight) + 1;
     }
 
@@ -314,27 +316,25 @@ i32 *generate_random_weights(i32 count) {
  * [weight count]
  * [weight distribution separated by whitespace]
  */
-i32 *load_weights_from_file(const char *filepath, i32 *size) {
+i32 *load_weights_from_file(const char *filepath, i64 *size) {
     FILE *f = fopen(filepath, "r");
     if (f == NULL) {
         fprintf(stderr, "Could not find file: %s\n", filepath);
         exit(1);
     }
 
-    if (fscanf(f, "%d", size) != 1) {
+    if (fscanf(f, "%ld", size) != 1) {
         fprintf(stderr, "Failed to read size from %s\n", filepath);
         fclose(f);
         exit(1);
     }
 
-    i32 *arr = malloc((*size) * sizeof(int));
+    i32 *arr = malloc((*size) * sizeof(i32));
     assert(arr != NULL, "Failed to allocate weight array\n");
 
-    for (i32 i = 0; i < *size; i++) {
+    for (i64 i = 0; i < *size; i++) {
         if (fscanf(f, "%d", &arr[i]) != 1) {
-            fprintf(
-                stderr, "Expected %d weights, but file ended early...\n", *size
-            );
+            fprintf(stderr, "Expected %lu weights, but file ended early...\n", *size);
             *size = i;
             break;
         }
@@ -352,8 +352,7 @@ i32 *load_weights_from_file(const char *filepath, i32 *size) {
  * [sink degrees separated by whitespace]
  */
 void load_degrees_from_file(
-    const char *filepath, i32 **source_deg, i32 *source_size, i32 **sink_deg,
-    i32 *sink_size
+    const char *filepath, i32 **source_deg, u32 *source_size, i32 **sink_deg, u32 *sink_size
 ) {
     FILE *f = fopen(filepath, "r");
     if (f == NULL) {
@@ -361,7 +360,7 @@ void load_degrees_from_file(
         exit(1);
     }
 
-    if (fscanf(f, "%d %d", source_size, sink_size) != 2) {
+    if (fscanf(f, "%u %u", source_size, sink_size) != 2) {
         fprintf(stderr, "Failed to read partition sizes from %s\n", filepath);
         fclose(f);
         exit(1);
@@ -370,19 +369,16 @@ void load_degrees_from_file(
     *source_deg = malloc((*source_size) * sizeof(int));
     *sink_deg = malloc((*sink_size) * sizeof(int));
 
-    assert(
-        *source_deg != NULL && *sink_deg != NULL,
-        "Failed to allocate degrees arrays.\n"
-    );
+    assert(*source_deg != NULL && *sink_deg != NULL, "Failed to allocate degrees arrays.\n");
 
-    for (i32 i = 0; i < *source_size; i++) {
+    for (u32 i = 0; i < *source_size; i++) {
         if (fscanf(f, "%d", &((*source_deg)[i])) != 1) {
             fprintf(stderr, "Premature EOF while reading source degrees...\n");
             exit(1);
         }
     }
 
-    for (i32 i = 0; i < *sink_size; i++) {
+    for (u32 i = 0; i < *sink_size; i++) {
         if (fscanf(f, "%d", &((*sink_deg)[i])) != 1) {
             fprintf(stderr, "Premature EOF while reading source degrees...\n");
             exit(1);
@@ -396,8 +392,7 @@ void load_degrees_from_file(
  * Writes to dimacs format
  */
 void write_dimacs(
-    const char *filepath, Graph *g, i32 s, i64 num_edges, i64 matching_weight,
-    i32 swaps
+    const char *filepath, Graph *g, u32 s, i64 num_edges, i64 matching_weight, i32 swaps
 ) {
     FILE *f = fopen(filepath, "w");
     if (f == NULL) {
@@ -407,19 +402,16 @@ void write_dimacs(
 
     fprintf(f, "c Max Weight Bipartite Matching Instance\n");
     fprintf(f, "c Generated by Rensselaer Polytechnic Institute's asn_gen.c\n");
-    fprintf(
-        f, "c The weight of the matching is approximately %ld\n",
-        matching_weight
-    );
-    fprintf(f, "c nodes %d\n", g->num_nodes);
-    fprintf(f, "c sources %d\n", s);
+    fprintf(f, "c The weight of the matching is approximately %ld\n", matching_weight);
+    fprintf(f, "c nodes %u\n", g->num_nodes);
+    fprintf(f, "c sources %u\n", s);
     fprintf(f, "c Max arc cost %d\n", g_max_weight);
     fprintf(f, "c Swaps performed %d\n", swaps);
 
-    fprintf(f, "p asn %d %ld \n", g->num_nodes, num_edges);
-    fprintf(f, "n %d\n", s);
+    fprintf(f, "p asn %u %ld \n", g->num_nodes, num_edges);
+    fprintf(f, "n %u\n", s);
 
-    for (i32 u = 0; u < s; u++) {
+    for (u32 u = 0; u < s; u++) {
         for (i32 i = 0; i < g->nodes[u].count; i++) {
             i32 v = g->nodes[u].list[i].id;
             i32 weight = g->nodes[u].list[i].weight;
@@ -433,8 +425,6 @@ void write_dimacs(
 /* -------------------- Init Functions -------------------- */
 
 void init() {
-    i32 i;
-
     cmdtable_size = 9;
     strcpy(cmdtable[0], "nodes");
     strcpy(cmdtable[1], "sources");
@@ -446,9 +436,9 @@ void init() {
     strcpy(cmdtable[7], "seed");
     strcpy(cmdtable[8], "output");
 
-    //* -1 represents the parameter being unset by default
-    g_nodes = -1;
-    g_sources = -1;
+    //* These values represents the parameter being unset
+    g_nodes = 0;
+    g_sources = 0;
     g_max_weight = -1;
     g_weight_file[0] = '\0';
     g_degree_file[0] = '\0';
@@ -466,25 +456,25 @@ i32 lookup(string cmd) {
 }
 
 void parse_input(
-    i32 **source_deg, i32 *source_size, i32 **sink_deg, i32 *sink_size,
-    i32 **weights, i32 *weights_size
+    i32 **source_deg, u32 *source_size, i32 **sink_deg, u32 *sink_size, i32 **weights,
+    i64 *weights_size
 ) {
     string cmd;
     string buf;
     i32 index;
-    i32 i;
 
     while (scanf("%s", cmd) != EOF) {
-        char* ignore = fgets(buf, sizeof(buf), stdin);
+        if (fgets(buf, sizeof(buf), stdin) == NULL)
+            break; // Command missing value
         index = lookup(cmd);
 
         switch (index) {
         case 0: { // Nodes
-            sscanf(buf, "%d", &g_nodes);
+            sscanf(buf, "%u", &g_nodes);
             break;
         }
         case 1: { // Sources
-            sscanf(buf, "%d", &g_sources);
+            sscanf(buf, "%u", &g_sources);
             break;
         }
         case 2: { // Source degree
@@ -523,18 +513,15 @@ void parse_input(
     }
 
     // Defaults, Argument Checking, & File Reading
-    assert(0 < g_nodes, "'nodes' must be specified and > 0.");
+    assert(2 <= g_nodes, "'nodes' must be specified and >= 2.");
 
-    if (g_sources == -1)
+    if (g_sources == 0)
         g_sources = SOURCES_DEFAULT;
-    assert(
-        0 < g_sources && g_sources < g_nodes,
-        "'sources must be > 0 and < 'nodes'."
-    );
+    assert(0 < g_sources && g_sources < g_nodes, "'sources must be > 0 and < 'nodes'.");
 
     if (g_degree_val == -1)
         g_degree_val = DEGREE_VAL_DEFAULT;
-    assert(0 < g_degree_val, "'degree_val' must be > 0.");
+    assert(0 < g_degree_val && (u32) g_degree_val <= g_nodes, "'degree_val' must be > 0 and <= 'nodes'.");
 
     if (g_max_weight == -1)
         g_max_weight = MAX_WEIGHT_DEFAULT;
@@ -546,20 +533,19 @@ void parse_input(
 
     if (g_seed == -1)
         g_seed = time(NULL);
+    assert(0 <= g_seed, "'seed' must be > 0.");
     init_rand(g_seed);
 
     if (g_degree_file[0] == '\0') {
         generate_default_degrees(source_deg, source_size, sink_deg, sink_size);
     }
     else {
-        load_degrees_from_file(
-            g_degree_file, source_deg, source_size, sink_deg, sink_size
-        );
+        load_degrees_from_file(g_degree_file, source_deg, source_size, sink_deg, sink_size);
     }
 
     if (g_weight_file[0] == '\0') {
         i64 total_w = 0;
-        for (i32 i = 0; i < *source_size; i++)
+        for (u32 i = 0; i < *source_size; i++)
             total_w += (*source_deg)[i];
         *weights_size = total_w;
         *weights = generate_random_weights(*weights_size);
@@ -575,8 +561,8 @@ void parse_input(
  * Generates a bipartite graph with a trivial max weight matching
  */
 void phase1_alg(
-    i32 *deg_seq_u, i32 size_u, i32 *deg_seq_v, i32 size_v, i32 *weights,
-    i32 weights_size, Graph **out_graph, Matching **out_matching
+    i32 *deg_seq_u, u32 size_u, i32 *deg_seq_v, u32 size_v, i32 *weights, i64 weights_size,
+    Graph **out_graph, Matching **out_matching
 ) {
     // Sort weights descending
     qsort(weights, weights_size, sizeof(i32), cmp_desc_i32);
@@ -586,32 +572,32 @@ void phase1_alg(
     *out_matching = calloc(size_u + size_v, sizeof(Matching));
 
     // Assign weights to source partition
-    i32 *u_stubs_for_weight = malloc(weights_size * sizeof(i32));
-    i32 idx = 0;
-    for (i32 i = 0; i < size_u; i++) {
+    i64 *u_stubs_for_weight = malloc(weights_size * sizeof(i64));
+    i64 idx = 0;
+    for (u32 i = 0; i < size_u; i++) {
         for (i32 d = 0; d < deg_seq_u[i]; d++) {
             u_stubs_for_weight[idx++] = i;
         }
     }
-    shuffle_array(u_stubs_for_weight, weights_size);
+    shuffle_array64(u_stubs_for_weight, weights_size);
 
     i32 **u_node_weights = malloc(size_u * sizeof(i32 *));
     i32 *u_nw_counts = calloc(size_u, sizeof(i32));
-    for (i32 i = 0; i < size_u; i++) {
+    for (u32 i = 0; i < size_u; i++) {
         u_node_weights[i] = malloc(deg_seq_u[i] * sizeof(i32));
     }
-    for (i32 i = 0; i < weights_size; i++) {
-        i32 u = u_stubs_for_weight[i];
+    for (i64 i = 0; i < weights_size; i++) {
+        u32 u = u_stubs_for_weight[i];
         u_node_weights[u][u_nw_counts[u]++] = weights[i];
     }
 
     // Greedy Match
-    for (i32 i = 0; i < size_u; i++) {
+    for (u32 i = 0; i < size_u; i++) {
         if (deg_seq_u[i] == 0)
             continue;
 
-        i32 u = i;
-        i32 v = i + size_u;
+        u32 u = i;
+        u32 v = i + size_u;
         i32 w = u_node_weights[i][0];
 
         (*out_matching)[u] = (Matching) {v, w, true};
@@ -623,41 +609,40 @@ void phase1_alg(
     }
 
     // Config Model
-    i32 remaining_edges = 0;
-    for (i32 i = 0; i < size_u; i++)
+    i64 remaining_edges = 0;
+    for (u32 i = 0; i < size_u; i++)
         remaining_edges += deg_seq_u[i];
 
-    i32 *u_stubs = malloc(remaining_edges * sizeof(i32));
-    i32 *v_stubs = malloc(remaining_edges * sizeof(i32));
+    i64 *u_stubs = malloc(remaining_edges * sizeof(i64));
+    i64 *v_stubs = malloc(remaining_edges * sizeof(i64));
 
     idx = 0;
-    for (i32 i = 0; i < size_u; i++) {
+    for (u32 i = 0; i < size_u; i++) {
         for (i32 d = 0; d < deg_seq_u[i]; d++)
             u_stubs[idx++] = i;
     }
     idx = 0;
-    for (i32 i = 0; i < size_v; i++) {
+    for (u32 i = 0; i < size_v; i++) {
         for (i32 d = 0; d < deg_seq_v[i]; d++)
             v_stubs[idx++] = i + size_u;
     }
 
-    shuffle_array(u_stubs, remaining_edges);
-    shuffle_array(v_stubs, remaining_edges);
+    shuffle_array64(u_stubs, remaining_edges);
+    shuffle_array64(v_stubs, remaining_edges);
 
     i32 *current_u_degree = calloc(size_u, sizeof(i32));
-    for (i32 i = 0; i < size_u; i++)
+    for (u32 i = 0; i < size_u; i++)
         current_u_degree[i] = 1;
 
-    for (i32 i = 0; i < remaining_edges; i++) {
-        i32 u = u_stubs[i];
-        i32 v = v_stubs[i];
+    for (i64 i = 0; i < remaining_edges; i++) {
+        u32 u = u_stubs[i];
+        u32 v = v_stubs[i];
 
         if (has_edge(*out_graph, u, v)) {
             bool found_swap = false;
-            for (u32 j = i + 1; j < remaining_edges; j++) {
-                if (!has_edge(*out_graph, u, v_stubs[j]) &&
-                    !has_edge(*out_graph, u_stubs[j], v)) {
-                    i32 temp = v_stubs[i];
+            for (i64 j = i + 1; j < remaining_edges; j++) {
+                if (!has_edge(*out_graph, u, v_stubs[j]) && !has_edge(*out_graph, u_stubs[j], v)) {
+                    u32 temp = v_stubs[i];
                     v_stubs[i] = v_stubs[j];
                     v_stubs[j] = temp;
                     v = v_stubs[i];
@@ -666,15 +651,15 @@ void phase1_alg(
                 }
             }
             if (!found_swap)
-                continue;
+                continue; // Add a counter to skips if you want
         }
 
-        u32 w = u_node_weights[u][current_u_degree[u]++];
+        i32 w = u_node_weights[u][current_u_degree[u]++];
         add_edge(*out_graph, u, v, w);
     }
 
     free(u_stubs_for_weight);
-    for (i32 i = 0; i < size_u; i++)
+    for (u32 i = 0; i < size_u; i++)
         free(u_node_weights[i]);
     free(u_node_weights);
     free(u_nw_counts);
@@ -687,12 +672,12 @@ void phase1_alg(
  * Strategically shuffles edge weights of graph to reduce size and increase
  * complexity of optimal solution
  */
-i32 phase2_alg(Graph **graph, Matching **matching, i32 size_u, i32 K) {
-    i32 *swappable = malloc((*graph)->num_nodes * sizeof(i32));
+i32 phase2_alg(Graph **graph, Matching **matching, u32 size_u, i32 K) {
+    u32 *swappable = malloc((*graph)->num_nodes * sizeof(i32));
     i32 swaps_possible = 0;
 
     // Only considering mu vertices
-    for (i32 i = size_u; i < (*graph)->num_nodes; i++) {
+    for (u32 i = size_u; i < (*graph)->num_nodes; i++) {
         if ((*graph)->nodes[i].count > 0 && (*matching)[i].is_matched) {
             swappable[swaps_possible++] = i;
         }
@@ -702,22 +687,22 @@ i32 phase2_alg(Graph **graph, Matching **matching, i32 size_u, i32 K) {
     i32 successful_swaps = 0;
 
     while (swaps_possible > 0 && K > 0) {
-        i32 mu = swappable[--swaps_possible];
-        i32 u = (*matching)[mu].partner;
+        u32 mu = swappable[--swaps_possible];
+        u32 u = (*matching)[mu].partner;
 
         AdjList *mu_neighbors = &(*graph)->nodes[mu];
         if (mu_neighbors->count < 2)
             continue;
 
-        i32 best_mu = mu_neighbors->list[0].id;
+        u32 best_mu = mu_neighbors->list[0].id;
         if (u != best_mu)
             continue;
 
-        i32 v = mu_neighbors->list[1].id;
+        u32 v = mu_neighbors->list[1].id;
         if (!(*matching)[v].is_matched)
             continue;
 
-        i32 mv = (*matching)[v].partner;
+        u32 mv = (*matching)[v].partner;
         if (u == v)
             continue;
 
@@ -728,7 +713,7 @@ i32 phase2_alg(Graph **graph, Matching **matching, i32 size_u, i32 K) {
 
         i32 u_max_external = 0;
         for (i32 i = 0; i < (*graph)->nodes[u].count; i++) {
-            i32 neighbor = (*graph)->nodes[u].list[i].id;
+            u32 neighbor = (*graph)->nodes[u].list[i].id;
             if (neighbor != mu && neighbor != mv) {
                 u_max_external = (*graph)->nodes[u].list[i].weight;
                 break;
@@ -741,7 +726,7 @@ i32 phase2_alg(Graph **graph, Matching **matching, i32 size_u, i32 K) {
 
         bool mu_safety_failed = false;
         for (i32 i = 0; i < mu_neighbors->count; i++) {
-            i32 x = mu_neighbors->list[i].id;
+            u32 x = mu_neighbors->list[i].id;
             i32 wx_mu = mu_neighbors->list[i].weight;
 
             if (x != u && x != v && (*matching)[x].is_matched) {
@@ -768,16 +753,16 @@ i32 phase2_alg(Graph **graph, Matching **matching, i32 size_u, i32 K) {
 
             // Resort neighbors
             qsort(
-                (*graph)->nodes[mu].list, (*graph)->nodes[mu].count,
-                sizeof(Neighbor), cmp_neighbor_weight_desc
+                (*graph)->nodes[mu].list, (*graph)->nodes[mu].count, sizeof(Neighbor),
+                cmp_neighbor_weight_desc
             );
             qsort(
-                (*graph)->nodes[u].list, (*graph)->nodes[u].count,
-                sizeof(Neighbor), cmp_neighbor_weight_desc
+                (*graph)->nodes[u].list, (*graph)->nodes[u].count, sizeof(Neighbor),
+                cmp_neighbor_weight_desc
             );
             qsort(
-                (*graph)->nodes[v].list, (*graph)->nodes[v].count,
-                sizeof(Neighbor), cmp_neighbor_weight_desc
+                (*graph)->nodes[v].list, (*graph)->nodes[v].count, sizeof(Neighbor),
+                cmp_neighbor_weight_desc
             );
         }
         else {
@@ -793,44 +778,56 @@ i32 phase2_alg(Graph **graph, Matching **matching, i32 size_u, i32 K) {
     return successful_swaps;
 }
 
+void generator(
+    i32 *source_deg, u32 source_size, i32 *sink_deg, u32 sink_size, i32 *weights, i64 weights_size,
+    Graph **graph, Matching **matching, i32 *swaps
+) {
+    phase1_alg(
+        source_deg, source_size, sink_deg, sink_size, weights, weights_size, graph, matching
+    );
+
+    *swaps = phase2_alg(graph, matching, source_size, g_max_swaps);
+}
+
 /* -------------------- Main Function -------------------- */
 
 i32 main() {
     i32 *source_deg = NULL;
-    i32 source_size = 0;
+    u32 source_size = 0;
     i32 *sink_deg = NULL;
-    i32 sink_size = 0;
+    u32 sink_size = 0;
     i32 *weights = NULL;
-    i32 weights_size = 0;
-    i32 matching_weight = 0;
+    i64 weights_size = 0;
+    i64 matching_weight = 0;
     i32 swaps = 0;
     Graph *graph = NULL;
     Matching *matching = NULL;
+    // u32 *edgelist = NULL;
 
     init();
 
-    parse_input(
-        &source_deg, &source_size, &sink_deg, &sink_size, &weights,
-        &weights_size
+    parse_input(&source_deg, &source_size, &sink_deg, &sink_size, &weights, &weights_size);
+
+    printf("Beginning Generation\n");
+
+    //todo Return edge list?
+    generator(
+        source_deg, source_size, sink_deg, sink_size, weights, weights_size, &graph, &matching,
+        &swaps
     );
 
-    phase1_alg(
-        source_deg, source_size, sink_deg, sink_size, weights, weights_size,
-        &graph, &matching
-    );
-
-    swaps = phase2_alg(&graph, &matching, source_size, g_max_swaps);
+    printf("Completed Generation\nWriting graph to %s\n", g_output_file);
 
     matching_weight = get_matching_weight(matching, source_size);
+    write_dimacs(g_output_file, graph, source_size, weights_size, matching_weight, swaps);
 
-    write_dimacs(
-        g_output_file, graph, source_size, weights_size, matching_weight, swaps
-    );
+    printf("Finished writing graph\n");
 
     free(source_deg);
     free(sink_deg);
     free(weights);
     free(matching);
+    // free(edgelist);
     free_graph(graph);
     return 0;
 }
