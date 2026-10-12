@@ -80,7 +80,7 @@ The slowest portion of the code is I/O. As noted, you can perform generation in 
 
 ## Citation
 
-This current method is based on a set of generators described in the 2025 Complex Networks and their Applications Conference (CNA). The paper is available [here](https://www.cs.rpi.edu/~slotag/pub/Random-CNA25.pdf):
+This current method is based on a set of generators described in the 2025 Complex Networks and their Applications Conference (CNA). The paper is available [here](https://doi.org/10.1007/978-3-032-16645-6_27):
 
 Please use the following citation if you reference or use this work:
 
