@@ -5,6 +5,17 @@
 This generator was originally developed for the purposes of benchmarking approximate matching algorithms at the large scale. It allows the specification of the number of vertices, power law exponent for a degree distribution, imbalance between the X,Y biparite sets, and a ratio of the maximum cardinality match relative to the smaller bipartite set (Y). This self-contained program will output in the specific DIMACS format. The code can also easily be used for in-memory generation, through copy+pasting the generate_pl_degrees() and create_graph() functions into your existing codebase. With minor modifications, an arbitrary degree distribution could also be used in place of the power law generator.
 
 
+## DIMACS13 Benchmark Instances
+
+Below are select instances to be used as part of the 13th DIMACS Implementation Challenge subproblem of Bipartite Matching.
+
+[Test Instance 1B (low-skew-small):](https://storage.googleapis.com/dimacs13/bp_10M_1_10_28.tar.gz) 10M vertices, |X| = |Y|, Degree and weight distribution PL-exponent = 2.8
+
+[Test Instance 2B (low-skew):](https://storage.googleapis.com/dimacs13/bp_100M_1_10_28.tar.gz) 100M vertices, |X| = |Y|, Degree and weight distribution PL-exponent = 2.8
+
+[Test Instance 5B (high-skew):](https://storage.googleapis.com/dimacs13/bp_100M_9_03_22.tar.gz) 100M vertices, |X| = 9*|Y|, Degree and weight distribution PL-exponent = 2.2
+
+
 ## Files
 
 [bp_gen.c](bp_gen.c) - C implementation of the generator.
