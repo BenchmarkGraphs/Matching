@@ -8,6 +8,18 @@ Phase 1 is the creation of a bipartite graph with a trivial max weight matching.
 
 Phase 2 shuffles the trivial matching's edge weights to increase complexity of the solution and decrease weight of the optimal matching. This is achieved by performing weight swaps on pairs of matching edges and their neighbors. This results in a random bipartite graph with a non-trivial but approximately known max weight matching.
 
+
+## DIMACS13 Benchmark Instances
+
+Below are select instances to be used as part of the 13th DIMACS Implementation Challenge subproblem of the Assignment Problem.
+
+[Test Instance 1A (low-skew-small):](https://storage.googleapis.com/dimacs13/asn_10M_1_28.tar.gz) 10M vertices, Degree and weight distribution PL-exponent = 2.8
+
+[Test Instance 2A (low-skew):](https://storage.googleapis.com/dimacs13/asn_100M_1_28.tar.gz) 100M vertices, Degree and weight distribution PL-exponent = 2.8
+
+[Test Instance 5A (high-skew):](https://storage.googleapis.com/dimacs13/asn_100M_9_22.tar.gz) 100M vertices, Degree and weight distribution PL-exponent = 2.2
+
+
 ## Files
 
 [asn_gen.c](asn_gen.c) - C implementation of the generator.
